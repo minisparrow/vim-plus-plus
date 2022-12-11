@@ -157,7 +157,8 @@ Plug 'ludovicchabant/vim-gutentags'
 Plug 'skywind3000/gutentags_plus'
 Plug 'prabirshrestha/vim-lsp'
 Plug 'mattn/vim-lsp-settings'
-
+Plug 'inkarkat/vim-mark'
+Plug 'inkarkat/vim-ingo-library'
 " "
 
 call plug#end()            

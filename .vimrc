@@ -23,7 +23,7 @@ set noeb                 " 关闭错误的提示
 syntax enable            " 开启语法高亮功能
 syntax on                " 自动语法高亮
 set t_Co=256             " 开启256色支持
-set cmdheight=2          " 设置命令行的高度
+set cmdheight=1         " 设置命令行的高度
 set showcmd              " select模式下显示选中的行数
 set ruler                " 总是显示光标位置
 set laststatus=2         " 总是显示状态栏
@@ -32,6 +32,7 @@ set cursorline           " 高亮显示当前行
 set whichwrap+=<,>,h,l   " 设置光标键跨行
 set virtualedit=block,onemore   " 允许光标出现在最后一个字符的后面
 set mouse=v              " 设置使用鼠标模式
+
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " 代码缩进和排版
@@ -149,6 +150,15 @@ Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
 Plug 'ervandew/supertab'
 Plug 'zxqfl/tabnine-vim'       " Deep TabNine 深度补全插件
+Plug 'epheien/termdbg'
+
+"lj add
+Plug 'ludovicchabant/vim-gutentags'
+Plug 'skywind3000/gutentags_plus'
+Plug 'prabirshrestha/vim-lsp'
+Plug 'mattn/vim-lsp-settings'
+
+" "
 
 call plug#end()            
 
@@ -184,10 +194,10 @@ let g:airline#extensions#tabline#enabled = 1
 if !exists('g:airline_symbols')
     let g:airline_symbols = {}
 endif
-let g:airline_left_sep = ''
-let g:airline_left_alt_sep = ''
-let g:airline_right_sep = ''
-let g:airline_right_alt_sep = ''
+let g:airline_left_sep = '▶'
+let g:airline_left_alt_sep = ' '
+let g:airline_right_sep = '◀'
+let g:airline_right_alt_sep = ' '
 
 " cppfun
 nnoremap <leader>y :CopyFun<cr>
@@ -206,7 +216,7 @@ nnoremap <silent> <F12> :ShowColorScheme<cr>
 inoremap <silent> <F12> <esc> :ShowColorScheme<cr>
 
 " nerdtree
-nnoremap <leader>n :NERDTreeToggle<cr>
+nnoremap <leader>n :NERDTreeToggle<cr> :vertical resize 20<cr>
 inoremap <leader>n <esc> :NERDTreeToggle<cr>
 let g:NERDTreeFileExtensionHighlightFullName = 1
 let g:NERDTreeExactMatchHighlightFullName = 1
@@ -229,6 +239,7 @@ nnoremap <silent> <leader>a :A<cr>
 let g:tagbar_width = 30
 nnoremap <leader>t :TagbarToggle<cr>
 inoremap <leader>t <esc> :TagbarToggle<cr>
+nnoremap <leader>rr :vertical resize +20
 
 " cpp_class_scope_highlight
 let g:cpp_class_scope_highlight = 1
@@ -276,12 +287,15 @@ let g:NERDTreeIndicatorMapCustom = {
     \ }
 
 " LeaderF
-nnoremap <leader>f :LeaderfFile ~<cr>
+nnoremap <leader>ff :LeaderfFile <cr>
+nnoremap <leader>fu :LeaderfFunction <cr>
+nnoremap <leader>f :Leaderf <space>
 let g:Lf_WildIgnore = {
             \ 'dir': ['.svn','.git','.hg','.vscode','.deepinwine','.oh-my-zsh'],
             \ 'file': ['*.sw?','~$*','*.bak','*.exe','*.o','*.so','*.py[co]']
             \}
 let g:Lf_UseCache = 0
+let g:Lf_WindowPosition = 'popup'
 
 " ack
 nnoremap <Leader>F :Ack!<space>
@@ -312,7 +326,7 @@ let g:multi_cursor_quit_key            = '<Esc>'
 
 " vim 打字机效果vim-keysoind
 " vim启动时自启动
-let g:keysound_enable = 1
+let g:keysound_enable = 0
 " 设置默认主题，可以使用：default, typewriter, mario, bubble, sword
 let g:keysound_theme = 'default'
 " 设置Python版本:2 or 3,默认会自动检测
@@ -346,6 +360,9 @@ let g:UltiSnipsJumpForwardTrigger = "<tab>"
 let g:UltiSnipsJumpBackwardTrigger = "<s-tab>"
 " If you want :UltiSnipsEdit to split your window.
 let g:UltiSnipsEditSplit="vertical"
+
+let g:ycm_use_ultisnips_completer = 0
+let g:ycm_log_level = 'debug'
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""
@@ -382,7 +399,6 @@ func SetComment()
     call append(4, '#')
     call append(5, '# @Filename: '.expand("%"))
     call append(6, '# @Version：V1.0')
-    call append(7, '# @Author: Frank Liu - frankliu624@gmail.com')
     call append(8, '# @Description: ---')
     call append(9, '# @Create Time: '.strftime("%Y-%m-%d %H:%M:%S"))
     call append(10, '# @Last Modified: '.strftime("%Y-%m-%d %H:%M:%S"))
@@ -392,6 +408,60 @@ func SetComment()
 
 endfunc
 map <F2> :call SetComment()<CR>:10<CR>o
+if has('python3')
+ silent! python3 1
+endif
 
 " SET Comment END
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"let g:ycm_server_python_interpreter = '/home/mlrobot/tools/python3.8/bin/python3.8'
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""
+"gtags
+""""""""""""""""""""""""""""""""""""""""""""""""""""
+" enable gtags module
+let g:gutentags_modules = ['ctags', 'gtags_cscope']
+
+" config project root markers.
+let g:gutentags_project_root = ['.root']
+
+"" generate datebases in my cache directory, prevent gtags files polluting my project
+let g:gutentags_cache_dir = expand('~/.cache/tags')
+
+" change focus to quickfix window after search (optional)
+let g:gutentags_plus_switch = 1"
+
+let g:gutentags_define_advanced_commands = 0
+
+noremap <leader>tn :tabnew <cr>
+noremap <leader>nn :tabn <cr>
+noremap <leader>pp :tabp <cr>
+
+" termdebug vertical 
+let g:termdebug_wide = 163
+let g:termdbg_wide = 163
+noremap <leader>lll :wincmd H <cr>
+
+
+" airline
+let g:airline#extensions#tabline#buffer_idx_mode = 1
+nmap <leader>1 <Plug>AirlineSelectTab1
+nmap <leader>2 <Plug>AirlineSelectTab2
+nmap <leader>3 <Plug>AirlineSelectTab3
+nmap <leader>4 <Plug>AirlineSelectTab4
+nmap <leader>5 <Plug>AirlineSelectTab5
+nmap <leader>6 <Plug>AirlineSelectTab6
+nmap <leader>7 <Plug>AirlineSelectTab7
+nmap <leader>8 <Plug>AirlineSelectTab8
+nmap <leader>9 <Plug>AirlineSelectTab9
+nmap <leader>- <Plug>AirlineSelectPrevTab
+nmap <leader>+ <Plug>AirlineSelectNextTab
+
+if executable('ffi-navigator')
+  " pip3 install ffi-navigator
+  au User lsp_setup call lsp#register_server({
+        \ 'name': 'ffi-navigator.langserver',
+        \ 'cmd': {server_info->['ffi-navigator']},
+        \ 'whitelist': ["python","cpp"],
+        \ })
+endif
